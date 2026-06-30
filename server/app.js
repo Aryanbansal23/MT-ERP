@@ -2,31 +2,27 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-// Import Routes
+// Routes
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const companyRoutes = require("./routes/companyRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 const app = express();
 
-// ======================
-// Global Middleware
-// ======================
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ======================
-// API Routes
-// ======================
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/company", companyRoutes);
+app.use("/api/customer", customerRoutes);
 
-// ======================
 // Home Route
-// ======================
 app.get("/", (req, res) => {
     res.status(200).json({
         success: true,
@@ -36,9 +32,7 @@ app.get("/", (req, res) => {
     });
 });
 
-// ======================
 // 404 Route
-// ======================
 app.use((req, res) => {
     res.status(404).json({
         success: false,
