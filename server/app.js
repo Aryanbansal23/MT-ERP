@@ -9,6 +9,7 @@ const companyRoutes = require("./routes/companyRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const supplierRoutes = require("./routes/supplierRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const unitRoutes = require("./routes/unitRoutes");
 
 const app = express();
 
@@ -18,13 +19,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/customer", customerRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/unit", unitRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
