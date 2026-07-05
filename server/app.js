@@ -10,6 +10,8 @@ const customerRoutes = require("./routes/customerRoutes");
 const supplierRoutes = require("./routes/supplierRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const unitRoutes = require("./routes/unitRoutes");
+const productRoutes = require("./routes/productRoutes");
+
 
 const app = express();
 
@@ -27,6 +29,7 @@ app.use("/api/customer", customerRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/unit", unitRoutes);
+app.use("/api/product", productRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
