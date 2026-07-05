@@ -8,6 +8,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const supplierRoutes = require("./routes/supplierRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/customer", customerRoutes);
 app.use("/api/supplier", supplierRoutes);
+app.use("/api/category", categoryRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
