@@ -11,9 +11,13 @@ const supplierRoutes = require("./routes/supplierRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const unitRoutes = require("./routes/unitRoutes");
 const productRoutes = require("./routes/productRoutes");
-
-
+const stockRoutes = require("./routes/stockRoutes");
+const purchaseRoutes = require("./routes/purchaseRoutes");
+const saleRoutes = require("./routes/saleRoutes");
+const expenseRoutes = require("./routes/expenseRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 const app = express();
+const ledgerRoutes = require("./routes/ledgerRoutes");
 
 // Middleware
 app.use(cors());
@@ -30,6 +34,12 @@ app.use("/api/supplier", supplierRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/unit", unitRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/stock", stockRoutes);
+app.use("/api/purchase", purchaseRoutes);
+app.use("/api/sale", saleRoutes);
+app.use("/api/expense", expenseRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/ledger", ledgerRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

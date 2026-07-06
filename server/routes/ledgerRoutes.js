@@ -4,9 +4,10 @@ const router = express.Router();
 const verifyToken = require("../middleware/authMiddleware");
 
 const {
-    dashboard
-} = require("../controllers/dashboardController");
+    supplierLedger
+} = require("../controllers/ledgerController");
 
-router.get("/", verifyToken, dashboard);
+// Supplier Ledger
+router.get("/supplier/:supplierId", verifyToken, supplierLedger);
 
 module.exports = router;
