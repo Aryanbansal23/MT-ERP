@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const login = (userData, token) => {
 
         localStorage.setItem("token", token);
+
         setUser(userData);
 
     };
@@ -16,11 +17,13 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
 
         localStorage.removeItem("token");
+
         setUser(null);
 
     };
 
     return (
+
         <AuthContext.Provider
             value={{
                 user,
@@ -30,6 +33,7 @@ export const AuthProvider = ({ children }) => {
         >
             {children}
         </AuthContext.Provider>
+
     );
 
 };
