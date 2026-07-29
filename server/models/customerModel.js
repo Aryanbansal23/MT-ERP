@@ -2,6 +2,7 @@ const db = require("../config/db");
 
 // Create Customer
 const createCustomer = (customerData, callback) => {
+
     const {
         company_id,
         customer_name,
@@ -37,51 +38,67 @@ const createCustomer = (customerData, callback) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        customer_name,
-        mobile,
-        email,
-        gst_number,
-        pan_number,
-        address,
-        city,
-        state,
-        pincode,
-        opening_balance,
-        balance_type,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            customer_name,
+            mobile,
+            email,
+            gst_number,
+            pan_number,
+            address,
+            city,
+            state,
+            pincode,
+            opening_balance,
+            balance_type,
+            created_by
+        ],
+        callback
+    );
 };
 
 // Get All Customers
-const getCustomers = (userId, callback) => {
+const getCustomers = (companyId, userId, callback) => {
+
     const sql = `
         SELECT *
         FROM customers
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(sql, [companyId, userId], callback);
+
 };
 
 // Get Customer By ID
-const getCustomerById = (customerId, userId, callback) => {
+const getCustomerById = (customerId, companyId, userId, callback) => {
+
     const sql = `
         SELECT *
         FROM customers
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [customerId, userId], callback);
+    db.query(sql, [customerId, companyId, userId], callback);
+
 };
 
 // Update Customer
-const updateCustomer = (customerId, userId, customerData, callback) => {
+const updateCustomer = (
+    customerId,
+    companyId,
+    userId,
+    customerData,
+    callback
+) => {
 
     const {
-        company_id,
         customer_name,
         mobile,
         email,
@@ -98,7 +115,6 @@ const updateCustomer = (customerId, userId, customerData, callback) => {
     const sql = `
         UPDATE customers
         SET
-            company_id = ?,
             customer_name = ?,
             mobile = ?,
             email = ?,
@@ -110,36 +126,58 @@ const updateCustomer = (customerId, userId, customerData, callback) => {
             pincode = ?,
             opening_balance = ?,
             balance_type = ?
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [
-        company_id,
-        customer_name,
-        mobile,
-        email,
-        gst_number,
-        pan_number,
-        address,
-        city,
-        state,
-        pincode,
-        opening_balance,
-        balance_type,
-        customerId,
-        userId
-    ], callback);
+    db.query(
+        sql,
+        [
+            customer_name,
+            mobile,
+            email,
+            gst_number,
+            pan_number,
+            address,
+            city,
+            state,
+            pincode,
+            opening_balance,
+            balance_type,
+            customerId,
+            companyId,
+            userId
+        ],
+        callback
+    );
+
 };
 
 // Delete Customer
-const deleteCustomer = (customerId, userId, callback) => {
+const deleteCustomer = (
+    customerId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         DELETE FROM customers
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [customerId, userId], callback);
+    db.query(
+        sql,
+        [
+            customerId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

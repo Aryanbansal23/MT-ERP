@@ -30,17 +30,21 @@ const createPurchase = (purchaseData, callback) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        supplier_id,
-        invoice_no,
-        purchase_date,
-        total_amount,
-        gst_amount,
-        grand_total,
-        remarks,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            supplier_id,
+            invoice_no,
+            purchase_date,
+            total_amount,
+            gst_amount,
+            grand_total,
+            remarks,
+            created_by
+        ],
+        callback
+    );
 
 };
 
@@ -66,18 +70,22 @@ const createPurchaseItem = (itemData, callback) => {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        purchase_id,
-        product_id,
-        quantity,
-        purchase_price,
-        amount
-    ], callback);
+    db.query(
+        sql,
+        [
+            purchase_id,
+            product_id,
+            quantity,
+            purchase_price,
+            amount
+        ],
+        callback
+    );
 
 };
 
 // Get All Purchases
-const getPurchases = (userId, callback) => {
+const getPurchases = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -86,11 +94,19 @@ const getPurchases = (userId, callback) => {
         FROM purchases p
         JOIN suppliers s
             ON p.supplier_id = s.id
-        WHERE p.created_by = ?
+        WHERE p.company_id = ?
+        AND p.created_by = ?
         ORDER BY p.id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

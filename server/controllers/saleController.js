@@ -15,8 +15,9 @@ const addSale = (req, res) => {
 
     try {
 
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             customer_id,
             invoice_no,
             sale_date,
@@ -28,7 +29,6 @@ const addSale = (req, res) => {
         } = req.body;
 
         if (
-            !company_id ||
             !customer_id ||
             !invoice_no ||
             !sale_date ||
@@ -67,81 +67,89 @@ const addSale = (req, res) => {
 
                 for (const item of items) {
 
-                    getStockByProduct(item.product_id, req.user.id, (err, stockResult) => {
+                    getStockByProduct(
+                        item.product_id,
+                        company_id,
+                        req.user.id,
+                        (err, stockResult) => {
 
-                        if (err) {
-                            return res.status(500).json({
-                                success: false,
-                                message: err.message
-                            });
-                        }
-
-                        if (stockResult.length === 0) {
-                            return res.status(404).json({
-                                success: false,
-                                message: "Stock not found"
-                            });
-                        }
-
-                        const currentStock = Number(stockResult[0].quantity);
-
-                        if (currentStock < item.quantity) {
-                            return res.status(400).json({
-                                success: false,
-                                message: `Insufficient stock for product ${item.product_id}`
-                            });
-                        }
-
-                        createSaleItem(
-                            {
-                                sale_id: saleId,
-                                product_id: item.product_id,
-                                quantity: item.quantity,
-                                selling_price: item.selling_price,
-                                amount: item.amount
-                            },
-                            (err) => {
-
-                                if (err) {
-                                    return res.status(500).json({
-                                        success: false,
-                                        message: err.message
-                                    });
-                                }
-
-                                decreaseStock(
-                                    item.product_id,
-                                    req.user.id,
-                                    item.quantity,
-                                    () => {}
-                                );
-
-                                createStockTransaction(
-                                    {
-                                        product_id: item.product_id,
-                                        company_id,
-                                        transaction_type: "SALE",
-                                        quantity: item.quantity,
-                                        remarks: invoice_no,
-                                        created_by: req.user.id
-                                    },
-                                    () => {}
-                                );
-
-                                completed++;
-
-                                if (completed === items.length) {
-                                    res.status(201).json({
-                                        success: true,
-                                        message: "Sale Created Successfully",
-                                        saleId
-                                    });
-                                }
-
+                            if (err) {
+                                return res.status(500).json({
+                                    success: false,
+                                    message: err.message
+                                });
                             }
-                        );
 
-                    });
+                            if (stockResult.length === 0) {
+                                return res.status(404).json({
+                                    success: false,
+                                    message: "Stock not found"
+                                });
+                            }
+
+                            const currentStock = Number(stockResult[0].quantity);
+
+                            if (currentStock < Number(item.quantity)) {
+                                return res.status(400).json({
+                                    success: false,
+                                    message: `Insufficient stock for product ${item.product_id}`
+                                });
+                            }
+
+                            createSaleItem(
+                                {
+                                    sale_id: saleId,
+                                    product_id: item.product_id,
+                                    quantity: item.quantity,
+                                    selling_price: item.selling_price,
+                                    amount: item.amount
+                                },
+                                (err) => {
+
+                                    if (err) {
+                                        return res.status(500).json({
+                                            success: false,
+                                            message: err.message
+                                        });
+                                    }
+
+                                    decreaseStock(
+                                        item.product_id,
+                                        company_id,
+                                        req.user.id,
+                                        item.quantity,
+                                        () => {}
+                                    );
+
+                                    createStockTransaction(
+                                        {
+                                            product_id: item.product_id,
+                                            company_id,
+                                            transaction_type: "SALE",
+                                            quantity: item.quantity,
+                                            remarks: invoice_no,
+                                            created_by: req.user.id
+                                        },
+                                        () => {}
+                                    );
+
+                                    completed++;
+
+                                    if (completed === items.length) {
+
+                                        return res.status(201).json({
+                                            success: true,
+                                            message: "Sale Created Successfully",
+                                            saleId
+                                        });
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
 
                 }
 
@@ -150,7 +158,7 @@ const addSale = (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message
         });
@@ -162,22 +170,26 @@ const addSale = (req, res) => {
 // Get All Sales
 const getAllSales = (req, res) => {
 
-    getSales(req.user.id, (err, result) => {
+    getSales(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                sales: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            sales: result
-        });
-
-    });
+    );
 
 };
 

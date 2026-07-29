@@ -9,16 +9,18 @@ const {
 // Create Category
 const addCategory = (req, res) => {
     try {
+
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             category_name,
             description
         } = req.body;
 
-        if (!company_id || !category_name) {
+        if (!category_name) {
             return res.status(400).json({
                 success: false,
-                message: "Company ID and Category Name are required"
+                message: "Category Name is required"
             });
         }
 
@@ -30,6 +32,7 @@ const addCategory = (req, res) => {
                 created_by: req.user.id
             },
             (err, result) => {
+
                 if (err) {
                     return res.status(500).json({
                         success: false,
@@ -37,41 +40,48 @@ const addCategory = (req, res) => {
                     });
                 }
 
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     message: "Category Created Successfully",
                     categoryId: result.insertId
                 });
+
             }
         );
 
     } catch (error) {
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: error.message
         });
+
     }
 };
 
 // Get All Categories
 const getAllCategories = (req, res) => {
 
-    getCategories(req.user.id, (err, result) => {
+    getCategories(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                categories: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            categories: result
-        });
-
-    });
+    );
 
 };
 
@@ -80,28 +90,33 @@ const getSingleCategory = (req, res) => {
 
     const categoryId = req.params.id;
 
-    getCategoryById(categoryId, req.user.id, (err, result) => {
+    getCategoryById(
+        categoryId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Category not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                category: result[0]
             });
+
         }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            category: result[0]
-        });
-
-    });
+    );
 
 };
 
@@ -110,28 +125,34 @@ const editCategory = (req, res) => {
 
     const categoryId = req.params.id;
 
-    updateCategory(categoryId, req.user.id, req.body, (err, result) => {
+    updateCategory(
+        categoryId,
+        req.user.company_id,
+        req.user.id,
+        req.body,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Category not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Category Updated Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Category Updated Successfully"
-        });
-
-    });
+    );
 
 };
 
@@ -140,28 +161,33 @@ const removeCategory = (req, res) => {
 
     const categoryId = req.params.id;
 
-    deleteCategory(categoryId, req.user.id, (err, result) => {
+    deleteCategory(
+        categoryId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Category not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Category Deleted Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Category Deleted Successfully"
-        });
-
-    });
+    );
 
 };
 

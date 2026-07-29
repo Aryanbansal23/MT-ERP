@@ -9,8 +9,10 @@ const {
 // Create Customer
 const addCustomer = (req, res) => {
     try {
+
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             customer_name,
             mobile,
             email,
@@ -24,10 +26,10 @@ const addCustomer = (req, res) => {
             balance_type
         } = req.body;
 
-        if (!company_id || !customer_name) {
+        if (!customer_name) {
             return res.status(400).json({
                 success: false,
-                message: "Company ID and Customer Name are required"
+                message: "Customer Name is required"
             });
         }
 
@@ -48,6 +50,7 @@ const addCustomer = (req, res) => {
                 created_by: req.user.id
             },
             (err, result) => {
+
                 if (err) {
                     return res.status(500).json({
                         success: false,
@@ -55,41 +58,48 @@ const addCustomer = (req, res) => {
                     });
                 }
 
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     message: "Customer Created Successfully",
                     customerId: result.insertId
                 });
+
             }
         );
 
     } catch (error) {
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: error.message
         });
+
     }
 };
 
 // Get All Customers
 const getAllCustomers = (req, res) => {
 
-    getCustomers(req.user.id, (err, result) => {
+    getCustomers(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                customers: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            customers: result
-        });
-
-    });
+    );
 
 };
 
@@ -98,28 +108,33 @@ const getSingleCustomer = (req, res) => {
 
     const customerId = req.params.id;
 
-    getCustomerById(customerId, req.user.id, (err, result) => {
+    getCustomerById(
+        customerId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                customer: result[0]
             });
+
         }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Customer not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            customer: result[0]
-        });
-
-    });
+    );
 
 };
 
@@ -128,28 +143,34 @@ const editCustomer = (req, res) => {
 
     const customerId = req.params.id;
 
-    updateCustomer(customerId, req.user.id, req.body, (err, result) => {
+    updateCustomer(
+        customerId,
+        req.user.company_id,
+        req.user.id,
+        req.body,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Customer Updated Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Customer not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Customer Updated Successfully"
-        });
-
-    });
+    );
 
 };
 
@@ -158,28 +179,33 @@ const removeCustomer = (req, res) => {
 
     const customerId = req.params.id;
 
-    deleteCustomer(customerId, req.user.id, (err, result) => {
+    deleteCustomer(
+        customerId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Customer Deleted Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Customer not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Customer Deleted Successfully"
-        });
-
-    });
+    );
 
 };
 

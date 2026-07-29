@@ -11,8 +11,9 @@ const addExpense = (req, res) => {
 
     try {
 
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             expense_date,
             category,
             amount,
@@ -20,10 +21,10 @@ const addExpense = (req, res) => {
             remarks
         } = req.body;
 
-        if (!company_id || !expense_date || !category || !amount) {
+        if (!expense_date || !category || !amount) {
             return res.status(400).json({
                 success: false,
-                message: "Company, Date, Category and Amount are required"
+                message: "Date, Category and Amount are required"
             });
         }
 
@@ -46,7 +47,7 @@ const addExpense = (req, res) => {
                     });
                 }
 
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     message: "Expense Added Successfully",
                     expenseId: result.insertId
@@ -57,7 +58,7 @@ const addExpense = (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message
         });
@@ -69,22 +70,26 @@ const addExpense = (req, res) => {
 // Get All Expenses
 const getAllExpenses = (req, res) => {
 
-    getExpenses(req.user.id, (err, result) => {
+    getExpenses(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                expenses: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            expenses: result
-        });
-
-    });
+    );
 
 };
 
@@ -93,28 +98,33 @@ const getSingleExpense = (req, res) => {
 
     const expenseId = req.params.id;
 
-    getExpenseById(expenseId, req.user.id, (err, result) => {
+    getExpenseById(
+        expenseId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Expense not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                expense: result[0]
             });
+
         }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Expense not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            expense: result[0]
-        });
-
-    });
+    );
 
 };
 
@@ -123,28 +133,34 @@ const editExpense = (req, res) => {
 
     const expenseId = req.params.id;
 
-    updateExpense(expenseId, req.user.id, req.body, (err, result) => {
+    updateExpense(
+        expenseId,
+        req.user.company_id,
+        req.user.id,
+        req.body,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Expense not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Expense Updated Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Expense not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Expense Updated Successfully"
-        });
-
-    });
+    );
 
 };
 
@@ -153,28 +169,33 @@ const removeExpense = (req, res) => {
 
     const expenseId = req.params.id;
 
-    deleteExpense(expenseId, req.user.id, (err, result) => {
+    deleteExpense(
+        expenseId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Expense not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Expense Deleted Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Expense not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Expense Deleted Successfully"
-        });
-
-    });
+    );
 
 };
 

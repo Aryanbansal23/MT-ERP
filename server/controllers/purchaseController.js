@@ -14,8 +14,9 @@ const addPurchase = (req, res) => {
 
     try {
 
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             supplier_id,
             invoice_no,
             purchase_date,
@@ -27,7 +28,6 @@ const addPurchase = (req, res) => {
         } = req.body;
 
         if (
-            !company_id ||
             !supplier_id ||
             !invoice_no ||
             !purchase_date ||
@@ -87,12 +87,13 @@ const addPurchase = (req, res) => {
                             // Increase Stock
                             increaseStock(
                                 item.product_id,
+                                company_id,
                                 req.user.id,
                                 item.quantity,
                                 () => {}
                             );
 
-                            // Stock Transaction
+                            // Create Stock Transaction
                             createStockTransaction(
                                 {
                                     product_id: item.product_id,
@@ -108,11 +109,13 @@ const addPurchase = (req, res) => {
                             completed++;
 
                             if (completed === items.length) {
-                                res.status(201).json({
+
+                                return res.status(201).json({
                                     success: true,
                                     message: "Purchase Created Successfully",
                                     purchaseId
                                 });
+
                             }
 
                         }
@@ -125,7 +128,7 @@ const addPurchase = (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message
         });
@@ -137,22 +140,26 @@ const addPurchase = (req, res) => {
 // Get All Purchases
 const getAllPurchases = (req, res) => {
 
-    getPurchases(req.user.id, (err, result) => {
+    getPurchases(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                purchases: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            purchases: result
-        });
-
-    });
+    );
 
 };
 

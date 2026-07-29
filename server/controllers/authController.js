@@ -2,10 +2,12 @@ const bcrypt = require("bcrypt");
 const { createUser, findUserByEmail } = require("../models/userModel");
 const generateToken = require("../utils/generateToken");
 
-// Register
+// Register (Only Logged-in Admin Can Create Users)
 const register = async (req, res) => {
     try {
         const { full_name, email, password, role } = req.body;
+
+        const company_id = req.user.company_id;
 
         if (!full_name || !email || !password) {
             return res.status(400).json({
@@ -14,41 +16,65 @@ const register = async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        findUserByEmail(email, async (err, result) => {
 
-        createUser(
-            {
-                full_name,
-                email,
-                password: hashedPassword,
-                role: role || "staff"
-            },
-            (err, result) => {
-                if (err) {
-                    return res.status(500).json({
-                        success: false,
-                        message: err.message
-                    });
-                }
-
-                res.status(201).json({
-                    success: true,
-                    message: "User Registered Successfully"
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
                 });
             }
-        );
+
+            if (result.length > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: "Email already exists"
+                });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            createUser(
+                {
+                    company_id,
+                    full_name,
+                    email,
+                    password: hashedPassword,
+                    role: role || "staff"
+                },
+                (err) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            success: false,
+                            message: err.message
+                        });
+                    }
+
+                    return res.status(201).json({
+                        success: true,
+                        message: "User Registered Successfully"
+                    });
+
+                }
+            );
+
+        });
 
     } catch (error) {
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: error.message
         });
+
     }
 };
 
 // Login
 const login = async (req, res) => {
     try {
+
         const { email, password } = req.body;
 
         if (!email || !password) {
@@ -87,12 +113,13 @@ const login = async (req, res) => {
 
             const token = generateToken(user);
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Login Successful",
                 token,
                 user: {
                     id: user.id,
+                    company_id: user.company_id,
                     full_name: user.full_name,
                     email: user.email,
                     role: user.role
@@ -102,10 +129,12 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: error.message
         });
+
     }
 };
 

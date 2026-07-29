@@ -43,35 +43,63 @@ const createExpense = (expenseData, callback) => {
 };
 
 // Get All Expenses
-const getExpenses = (userId, callback) => {
+const getExpenses = (companyId, userId, callback) => {
 
     const sql = `
         SELECT *
         FROM expenses
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Get Expense By ID
-const getExpenseById = (expenseId, userId, callback) => {
+const getExpenseById = (
+    expenseId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         SELECT *
         FROM expenses
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
-    db.query(sql, [expenseId, userId], callback);
+    db.query(
+        sql,
+        [
+            expenseId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Update Expense
-const updateExpense = (expenseId, userId, expenseData, callback) => {
+const updateExpense = (
+    expenseId,
+    companyId,
+    userId,
+    expenseData,
+    callback
+) => {
 
     const {
         expense_date,
@@ -90,6 +118,7 @@ const updateExpense = (expenseId, userId, expenseData, callback) => {
             payment_mode = ?,
             remarks = ?
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
@@ -102,6 +131,7 @@ const updateExpense = (expenseId, userId, expenseData, callback) => {
             payment_mode,
             remarks,
             expenseId,
+            companyId,
             userId
         ],
         callback
@@ -110,15 +140,29 @@ const updateExpense = (expenseId, userId, expenseData, callback) => {
 };
 
 // Delete Expense
-const deleteExpense = (expenseId, userId, callback) => {
+const deleteExpense = (
+    expenseId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         DELETE FROM expenses
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
-    db.query(sql, [expenseId, userId], callback);
+    db.query(
+        sql,
+        [
+            expenseId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

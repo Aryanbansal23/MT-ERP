@@ -10,9 +10,10 @@ const {
 // Complete Dashboard
 const dashboard = (req, res) => {
 
+    const companyId = req.user.company_id;
     const userId = req.user.id;
 
-    getDashboardSummary(userId, (err, summary) => {
+    getDashboardSummary(companyId, userId, (err, summary) => {
 
         if (err) {
             return res.status(500).json({
@@ -21,7 +22,7 @@ const dashboard = (req, res) => {
             });
         }
 
-        getMonthlySales(userId, (err, monthlySales) => {
+        getMonthlySales(companyId, userId, (err, monthlySales) => {
 
             if (err) {
                 return res.status(500).json({
@@ -30,7 +31,7 @@ const dashboard = (req, res) => {
                 });
             }
 
-            getMonthlyPurchases(userId, (err, monthlyPurchases) => {
+            getMonthlyPurchases(companyId, userId, (err, monthlyPurchases) => {
 
                 if (err) {
                     return res.status(500).json({
@@ -39,7 +40,7 @@ const dashboard = (req, res) => {
                     });
                 }
 
-                getRecentSales(userId, (err, recentSales) => {
+                getRecentSales(companyId, userId, (err, recentSales) => {
 
                     if (err) {
                         return res.status(500).json({
@@ -48,7 +49,7 @@ const dashboard = (req, res) => {
                         });
                     }
 
-                    getRecentPurchases(userId, (err, recentPurchases) => {
+                    getRecentPurchases(companyId, userId, (err, recentPurchases) => {
 
                         if (err) {
                             return res.status(500).json({
@@ -57,7 +58,7 @@ const dashboard = (req, res) => {
                             });
                         }
 
-                        getLowStockProducts(userId, (err, lowStockProducts) => {
+                        getLowStockProducts(companyId, userId, (err, lowStockProducts) => {
 
                             if (err) {
                                 return res.status(500).json({
@@ -66,19 +67,13 @@ const dashboard = (req, res) => {
                                 });
                             }
 
-                            res.status(200).json({
+                            return res.status(200).json({
                                 success: true,
-
                                 summary: summary[0],
-
                                 monthlySales,
-
                                 monthlyPurchases,
-
                                 recentSales,
-
                                 recentPurchases,
-
                                 lowStockProducts
                             });
 

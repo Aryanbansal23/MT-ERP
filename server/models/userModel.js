@@ -1,19 +1,53 @@
 const db = require("../config/db");
 
+// Create User
 const createUser = (userData, callback) => {
-    const { full_name, email, password, role } = userData;
+    const {
+        company_id,
+        full_name,
+        email,
+        password,
+        role
+    } = userData;
 
     const sql = `
-        INSERT INTO users (full_name, email, password, role)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO users (
+            company_id,
+            full_name,
+            email,
+            password,
+            role
+        )
+        VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [full_name, email, password, role], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            full_name,
+            email,
+            password,
+            role
+        ],
+        callback
+    );
 };
 
-// Find user by email
+// Find User By Email
 const findUserByEmail = (email, callback) => {
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = `
+        SELECT
+            id,
+            company_id,
+            full_name,
+            email,
+            password,
+            role,
+            created_at
+        FROM users
+        WHERE email = ?
+    `;
 
     db.query(sql, [email], callback);
 };

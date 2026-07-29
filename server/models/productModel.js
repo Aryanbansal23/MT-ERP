@@ -40,27 +40,31 @@ const createProduct = (productData, callback) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        category_id,
-        unit_id,
-        product_name,
-        product_code,
-        hsn_code,
-        gst_percentage,
-        purchase_price,
-        selling_price,
-        opening_stock,
-        minimum_stock,
-        barcode,
-        description,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            category_id,
+            unit_id,
+            product_name,
+            product_code,
+            hsn_code,
+            gst_percentage,
+            purchase_price,
+            selling_price,
+            opening_stock,
+            minimum_stock,
+            barcode,
+            description,
+            created_by
+        ],
+        callback
+    );
 
 };
 
 // Get All Products
-const getProducts = (userId, callback) => {
+const getProducts = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -69,34 +73,60 @@ const getProducts = (userId, callback) => {
             u.unit_name,
             u.short_name
         FROM products p
-        JOIN categories c ON p.category_id = c.id
-        JOIN units u ON p.unit_id = u.id
-        WHERE p.created_by = ?
+        INNER JOIN categories c
+            ON p.category_id = c.id
+        INNER JOIN units u
+            ON p.unit_id = u.id
+        WHERE p.company_id = ?
+        AND p.created_by = ?
         ORDER BY p.id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(sql, [companyId, userId], callback);
 
 };
 
 // Get Product By ID
-const getProductById = (productId, userId, callback) => {
+const getProductById = (productId, companyId, userId, callback) => {
 
     const sql = `
-        SELECT *
-        FROM products
-        WHERE id = ? AND created_by = ?
+        SELECT
+            p.*,
+            c.category_name,
+            u.unit_name,
+            u.short_name
+        FROM products p
+        INNER JOIN categories c
+            ON p.category_id = c.id
+        INNER JOIN units u
+            ON p.unit_id = u.id
+        WHERE p.id = ?
+        AND p.company_id = ?
+        AND p.created_by = ?
     `;
 
-    db.query(sql, [productId, userId], callback);
+    db.query(
+        sql,
+        [
+            productId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Update Product
-const updateProduct = (productId, userId, productData, callback) => {
+const updateProduct = (
+    productId,
+    companyId,
+    userId,
+    productData,
+    callback
+) => {
 
     const {
-        company_id,
         category_id,
         unit_id,
         product_name,
@@ -114,48 +144,69 @@ const updateProduct = (productId, userId, productData, callback) => {
     const sql = `
         UPDATE products
         SET
-            company_id=?,
-            category_id=?,
-            unit_id=?,
-            product_name=?,
-            product_code=?,
-            hsn_code=?,
-            gst_percentage=?,
-            purchase_price=?,
-            selling_price=?,
-            opening_stock=?,
-            minimum_stock=?,
-            barcode=?,
-            description=?
-        WHERE id=? AND created_by=?
+            category_id = ?,
+            unit_id = ?,
+            product_name = ?,
+            product_code = ?,
+            hsn_code = ?,
+            gst_percentage = ?,
+            purchase_price = ?,
+            selling_price = ?,
+            opening_stock = ?,
+            minimum_stock = ?,
+            barcode = ?,
+            description = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [
-        company_id,
-        category_id,
-        unit_id,
-        product_name,
-        product_code,
-        hsn_code,
-        gst_percentage,
-        purchase_price,
-        selling_price,
-        opening_stock,
-        minimum_stock,
-        barcode,
-        description,
-        productId,
-        userId
-    ], callback);
+    db.query(
+        sql,
+        [
+            category_id,
+            unit_id,
+            product_name,
+            product_code,
+            hsn_code,
+            gst_percentage,
+            purchase_price,
+            selling_price,
+            opening_stock,
+            minimum_stock,
+            barcode,
+            description,
+            productId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Delete Product
-const deleteProduct = (productId, userId, callback) => {
+const deleteProduct = (
+    productId,
+    companyId,
+    userId,
+    callback
+) => {
+
+    const sql = `
+        DELETE FROM products
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
+    `;
 
     db.query(
-        "DELETE FROM products WHERE id=? AND created_by=?",
-        [productId, userId],
+        sql,
+        [
+            productId,
+            companyId,
+            userId
+        ],
         callback
     );
 

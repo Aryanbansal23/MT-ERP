@@ -9,8 +9,10 @@ const {
 // Create Supplier
 const addSupplier = (req, res) => {
     try {
+
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             supplier_name,
             mobile,
             email,
@@ -24,10 +26,10 @@ const addSupplier = (req, res) => {
             balance_type
         } = req.body;
 
-        if (!company_id || !supplier_name) {
+        if (!supplier_name) {
             return res.status(400).json({
                 success: false,
-                message: "Company ID and Supplier Name are required"
+                message: "Supplier Name is required"
             });
         }
 
@@ -48,6 +50,7 @@ const addSupplier = (req, res) => {
                 created_by: req.user.id
             },
             (err, result) => {
+
                 if (err) {
                     return res.status(500).json({
                         success: false,
@@ -55,41 +58,48 @@ const addSupplier = (req, res) => {
                     });
                 }
 
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     message: "Supplier Created Successfully",
                     supplierId: result.insertId
                 });
+
             }
         );
 
     } catch (error) {
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: error.message
         });
+
     }
 };
 
 // Get All Suppliers
 const getAllSuppliers = (req, res) => {
 
-    getSuppliers(req.user.id, (err, result) => {
+    getSuppliers(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                suppliers: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            suppliers: result
-        });
-
-    });
+    );
 
 };
 
@@ -98,28 +108,33 @@ const getSingleSupplier = (req, res) => {
 
     const supplierId = req.params.id;
 
-    getSupplierById(supplierId, req.user.id, (err, result) => {
+    getSupplierById(
+        supplierId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Supplier not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                supplier: result[0]
             });
+
         }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            supplier: result[0]
-        });
-
-    });
+    );
 
 };
 
@@ -128,28 +143,34 @@ const editSupplier = (req, res) => {
 
     const supplierId = req.params.id;
 
-    updateSupplier(supplierId, req.user.id, req.body, (err, result) => {
+    updateSupplier(
+        supplierId,
+        req.user.company_id,
+        req.user.id,
+        req.body,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Supplier not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Supplier Updated Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Supplier Updated Successfully"
-        });
-
-    });
+    );
 
 };
 
@@ -158,28 +179,33 @@ const removeSupplier = (req, res) => {
 
     const supplierId = req.params.id;
 
-    deleteSupplier(supplierId, req.user.id, (err, result) => {
+    deleteSupplier(
+        supplierId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Supplier not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Supplier Deleted Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Supplier Deleted Successfully"
-        });
-
-    });
+    );
 
 };
 

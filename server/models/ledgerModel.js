@@ -1,7 +1,12 @@
 const db = require("../config/db");
 
 // Supplier Ledger
-const getSupplierLedger = (supplierId, userId, callback) => {
+const getSupplierLedger = (
+    supplierId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
 
@@ -13,6 +18,7 @@ const getSupplierLedger = (supplierId, userId, callback) => {
             0 AS credit
         FROM purchases
         WHERE supplier_id = ?
+        AND company_id = ?
         AND created_by = ?
 
         UNION ALL
@@ -25,6 +31,7 @@ const getSupplierLedger = (supplierId, userId, callback) => {
             amount AS credit
         FROM payments
         WHERE supplier_id = ?
+        AND company_id = ?
         AND created_by = ?
 
         ORDER BY date;
@@ -35,8 +42,10 @@ const getSupplierLedger = (supplierId, userId, callback) => {
         sql,
         [
             supplierId,
+            companyId,
             userId,
             supplierId,
+            companyId,
             userId
         ],
         callback

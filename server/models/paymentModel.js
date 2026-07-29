@@ -46,7 +46,7 @@ const createPayment = (paymentData, callback) => {
 };
 
 // Get All Payments
-const getPayments = (userId, callback) => {
+const getPayments = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -55,30 +55,58 @@ const getPayments = (userId, callback) => {
         FROM payments p
         JOIN suppliers s
             ON p.supplier_id = s.id
-        WHERE p.created_by = ?
+        WHERE p.company_id = ?
+        AND p.created_by = ?
         ORDER BY p.id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Get Payment By ID
-const getPaymentById = (paymentId, userId, callback) => {
+const getPaymentById = (
+    paymentId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         SELECT *
         FROM payments
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
-    db.query(sql, [paymentId, userId], callback);
+    db.query(
+        sql,
+        [
+            paymentId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Update Payment
-const updatePayment = (paymentId, userId, paymentData, callback) => {
+const updatePayment = (
+    paymentId,
+    companyId,
+    userId,
+    paymentData,
+    callback
+) => {
 
     const {
         payment_date,
@@ -97,6 +125,7 @@ const updatePayment = (paymentId, userId, paymentData, callback) => {
             reference_no = ?,
             remarks = ?
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
@@ -109,6 +138,7 @@ const updatePayment = (paymentId, userId, paymentData, callback) => {
             reference_no,
             remarks,
             paymentId,
+            companyId,
             userId
         ],
         callback
@@ -117,15 +147,29 @@ const updatePayment = (paymentId, userId, paymentData, callback) => {
 };
 
 // Delete Payment
-const deletePayment = (paymentId, userId, callback) => {
+const deletePayment = (
+    paymentId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         DELETE FROM payments
         WHERE id = ?
+        AND company_id = ?
         AND created_by = ?
     `;
 
-    db.query(sql, [paymentId, userId], callback);
+    db.query(
+        sql,
+        [
+            paymentId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

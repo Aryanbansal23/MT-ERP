@@ -1,43 +1,71 @@
 const db = require("../config/db");
 
 // Dashboard Summary
-const getDashboardSummary = (userId, callback) => {
+const getDashboardSummary = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
-            (SELECT COUNT(*) FROM customers WHERE created_by = ?) AS totalCustomers,
+            (
+                SELECT COUNT(*)
+                FROM customers
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalCustomers,
 
-            (SELECT COUNT(*) FROM suppliers WHERE created_by = ?) AS totalSuppliers,
+            (
+                SELECT COUNT(*)
+                FROM suppliers
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalSuppliers,
 
-            (SELECT COUNT(*) FROM products WHERE created_by = ?) AS totalProducts,
+            (
+                SELECT COUNT(*)
+                FROM products
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalProducts,
 
-            (SELECT COUNT(*) FROM stock
-                WHERE quantity <= 10
-                AND created_by = ?) AS lowStockProducts,
+            (
+                SELECT COUNT(*)
+                FROM stock
+                WHERE company_id = ?
+                AND quantity <= 10
+                AND created_by = ?
+            ) AS lowStockProducts,
 
-            (SELECT IFNULL(SUM(grand_total),0)
+            (
+                SELECT IFNULL(SUM(grand_total),0)
                 FROM purchases
-                WHERE created_by = ?) AS totalPurchases,
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalPurchases,
 
-            (SELECT IFNULL(SUM(grand_total),0)
+            (
+                SELECT IFNULL(SUM(grand_total),0)
                 FROM sales
-                WHERE created_by = ?) AS totalSales,
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalSales,
 
-            (SELECT IFNULL(SUM(amount),0)
+            (
+                SELECT IFNULL(SUM(amount),0)
                 FROM expenses
-                WHERE created_by = ?) AS totalExpenses
+                WHERE company_id = ?
+                AND created_by = ?
+            ) AS totalExpenses
     `;
 
     db.query(
         sql,
         [
-            userId,
-            userId,
-            userId,
-            userId,
-            userId,
-            userId,
-            userId
+            companyId, userId,
+            companyId, userId,
+            companyId, userId,
+            companyId, userId,
+            companyId, userId,
+            companyId, userId,
+            companyId, userId
         ],
         callback
     );
@@ -45,41 +73,57 @@ const getDashboardSummary = (userId, callback) => {
 };
 
 // Monthly Sales
-const getMonthlySales = (userId, callback) => {
+const getMonthlySales = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
             MONTH(sale_date) AS month,
             SUM(grand_total) AS total
         FROM sales
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         GROUP BY MONTH(sale_date)
         ORDER BY MONTH(sale_date)
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Monthly Purchases
-const getMonthlyPurchases = (userId, callback) => {
+const getMonthlyPurchases = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
             MONTH(purchase_date) AS month,
             SUM(grand_total) AS total
         FROM purchases
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         GROUP BY MONTH(purchase_date)
         ORDER BY MONTH(purchase_date)
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Recent Sales
-const getRecentSales = (userId, callback) => {
+const getRecentSales = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -87,17 +131,25 @@ const getRecentSales = (userId, callback) => {
             grand_total,
             sale_date
         FROM sales
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
         LIMIT 5
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Recent Purchases
-const getRecentPurchases = (userId, callback) => {
+const getRecentPurchases = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -105,17 +157,25 @@ const getRecentPurchases = (userId, callback) => {
             grand_total,
             purchase_date
         FROM purchases
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
         LIMIT 5
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Low Stock Products
-const getLowStockProducts = (userId, callback) => {
+const getLowStockProducts = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -125,12 +185,20 @@ const getLowStockProducts = (userId, callback) => {
         FROM stock s
         JOIN products p
             ON s.product_id = p.id
-        WHERE s.quantity <= 10
+        WHERE s.company_id = ?
         AND s.created_by = ?
+        AND s.quantity <= 10
         ORDER BY s.quantity ASC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

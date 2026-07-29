@@ -2,6 +2,7 @@ const db = require("../config/db");
 
 // Create Category
 const createCategory = (categoryData, callback) => {
+
     const {
         company_id,
         category_name,
@@ -19,44 +20,79 @@ const createCategory = (categoryData, callback) => {
         VALUES (?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        category_name,
-        description,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            category_name,
+            description,
+            created_by
+        ],
+        callback
+    );
+
 };
 
 // Get All Categories
-const getCategories = (userId, callback) => {
+const getCategories = (companyId, userId, callback) => {
 
     const sql = `
         SELECT *
         FROM categories
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
+
 };
 
 // Get Category By ID
-const getCategoryById = (categoryId, userId, callback) => {
+const getCategoryById = (
+    categoryId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         SELECT *
         FROM categories
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [categoryId, userId], callback);
+    db.query(
+        sql,
+        [
+            categoryId,
+            companyId,
+            userId
+        ],
+        callback
+    );
+
 };
 
 // Update Category
-const updateCategory = (categoryId, userId, categoryData, callback) => {
+const updateCategory = (
+    categoryId,
+    companyId,
+    userId,
+    categoryData,
+    callback
+) => {
 
     const {
-        company_id,
         category_name,
         description
     } = categoryData;
@@ -64,30 +100,52 @@ const updateCategory = (categoryId, userId, categoryData, callback) => {
     const sql = `
         UPDATE categories
         SET
-            company_id = ?,
             category_name = ?,
             description = ?
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [
-        company_id,
-        category_name,
-        description,
-        categoryId,
-        userId
-    ], callback);
+    db.query(
+        sql,
+        [
+            category_name,
+            description,
+            categoryId,
+            companyId,
+            userId
+        ],
+        callback
+    );
+
 };
 
 // Delete Category
-const deleteCategory = (categoryId, userId, callback) => {
+const deleteCategory = (
+    categoryId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         DELETE FROM categories
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [categoryId, userId], callback);
+    db.query(
+        sql,
+        [
+            categoryId,
+            companyId,
+            userId
+        ],
+        callback
+    );
+
 };
 
 module.exports = {

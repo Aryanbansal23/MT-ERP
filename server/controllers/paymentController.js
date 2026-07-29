@@ -11,8 +11,9 @@ const addPayment = (req, res) => {
 
     try {
 
+        const company_id = req.user.company_id;
+
         const {
-            company_id,
             supplier_id,
             payment_date,
             amount,
@@ -21,10 +22,10 @@ const addPayment = (req, res) => {
             remarks
         } = req.body;
 
-        if (!company_id || !supplier_id || !payment_date || !amount) {
+        if (!supplier_id || !payment_date || !amount) {
             return res.status(400).json({
                 success: false,
-                message: "Company, Supplier, Date and Amount are required"
+                message: "Supplier, Date and Amount are required"
             });
         }
 
@@ -48,7 +49,7 @@ const addPayment = (req, res) => {
                     });
                 }
 
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     message: "Payment Added Successfully",
                     paymentId: result.insertId
@@ -59,7 +60,7 @@ const addPayment = (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message
         });
@@ -71,22 +72,26 @@ const addPayment = (req, res) => {
 // Get All Payments
 const getAllPayments = (req, res) => {
 
-    getPayments(req.user.id, (err, result) => {
+    getPayments(
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                count: result.length,
+                payments: result
             });
+
         }
-
-        res.status(200).json({
-            success: true,
-            count: result.length,
-            payments: result
-        });
-
-    });
+    );
 
 };
 
@@ -95,28 +100,33 @@ const getSinglePayment = (req, res) => {
 
     const paymentId = req.params.id;
 
-    getPaymentById(paymentId, req.user.id, (err, result) => {
+    getPaymentById(
+        paymentId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Payment not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                payment: result[0]
             });
+
         }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            payment: result[0]
-        });
-
-    });
+    );
 
 };
 
@@ -125,28 +135,34 @@ const editPayment = (req, res) => {
 
     const paymentId = req.params.id;
 
-    updatePayment(paymentId, req.user.id, req.body, (err, result) => {
+    updatePayment(
+        paymentId,
+        req.user.company_id,
+        req.user.id,
+        req.body,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Payment not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Payment Updated Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Payment Updated Successfully"
-        });
-
-    });
+    );
 
 };
 
@@ -155,28 +171,33 @@ const removePayment = (req, res) => {
 
     const paymentId = req.params.id;
 
-    deletePayment(paymentId, req.user.id, (err, result) => {
+    deletePayment(
+        paymentId,
+        req.user.company_id,
+        req.user.id,
+        (err, result) => {
 
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err.message
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Payment not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Payment Deleted Successfully"
             });
+
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Payment Deleted Successfully"
-        });
-
-    });
+    );
 
 };
 

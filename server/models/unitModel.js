@@ -22,48 +22,80 @@ const createUnit = (unitData, callback) => {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        unit_name,
-        short_name,
-        description,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            unit_name,
+            short_name,
+            description,
+            created_by
+        ],
+        callback
+    );
 
 };
 
 // Get All Units
-const getUnits = (userId, callback) => {
+const getUnits = (companyId, userId, callback) => {
 
     const sql = `
         SELECT *
         FROM units
-        WHERE created_by = ?
+        WHERE company_id = ?
+        AND created_by = ?
         ORDER BY id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Get Unit By ID
-const getUnitById = (unitId, userId, callback) => {
+const getUnitById = (
+    unitId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         SELECT *
         FROM units
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [unitId, userId], callback);
+    db.query(
+        sql,
+        [
+            unitId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Update Unit
-const updateUnit = (unitId, userId, unitData, callback) => {
+const updateUnit = (
+    unitId,
+    companyId,
+    userId,
+    unitData,
+    callback
+) => {
 
     const {
-        company_id,
         unit_name,
         short_name,
         description
@@ -72,33 +104,53 @@ const updateUnit = (unitId, userId, unitData, callback) => {
     const sql = `
         UPDATE units
         SET
-            company_id = ?,
             unit_name = ?,
             short_name = ?,
             description = ?
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [
-        company_id,
-        unit_name,
-        short_name,
-        description,
-        unitId,
-        userId
-    ], callback);
+    db.query(
+        sql,
+        [
+            unit_name,
+            short_name,
+            description,
+            unitId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
 // Delete Unit
-const deleteUnit = (unitId, userId, callback) => {
+const deleteUnit = (
+    unitId,
+    companyId,
+    userId,
+    callback
+) => {
 
     const sql = `
         DELETE FROM units
-        WHERE id = ? AND created_by = ?
+        WHERE id = ?
+        AND company_id = ?
+        AND created_by = ?
     `;
 
-    db.query(sql, [unitId, userId], callback);
+    db.query(
+        sql,
+        [
+            unitId,
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 

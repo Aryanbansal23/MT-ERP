@@ -30,17 +30,21 @@ const createSale = (saleData, callback) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        company_id,
-        customer_id,
-        invoice_no,
-        sale_date,
-        total_amount,
-        gst_amount,
-        grand_total,
-        remarks,
-        created_by
-    ], callback);
+    db.query(
+        sql,
+        [
+            company_id,
+            customer_id,
+            invoice_no,
+            sale_date,
+            total_amount,
+            gst_amount,
+            grand_total,
+            remarks,
+            created_by
+        ],
+        callback
+    );
 
 };
 
@@ -66,18 +70,22 @@ const createSaleItem = (itemData, callback) => {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        sale_id,
-        product_id,
-        quantity,
-        selling_price,
-        amount
-    ], callback);
+    db.query(
+        sql,
+        [
+            sale_id,
+            product_id,
+            quantity,
+            selling_price,
+            amount
+        ],
+        callback
+    );
 
 };
 
 // Get All Sales
-const getSales = (userId, callback) => {
+const getSales = (companyId, userId, callback) => {
 
     const sql = `
         SELECT
@@ -86,11 +94,19 @@ const getSales = (userId, callback) => {
         FROM sales s
         JOIN customers c
             ON s.customer_id = c.id
-        WHERE s.created_by = ?
+        WHERE s.company_id = ?
+        AND s.created_by = ?
         ORDER BY s.id DESC
     `;
 
-    db.query(sql, [userId], callback);
+    db.query(
+        sql,
+        [
+            companyId,
+            userId
+        ],
+        callback
+    );
 
 };
 
